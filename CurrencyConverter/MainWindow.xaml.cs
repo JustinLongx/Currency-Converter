@@ -24,13 +24,13 @@ namespace CurrencyConverter
     /// </summary>
     public partial class MainWindow : Window
     {
-        //Create an object for SqlConnection        
+        //Allows me to make a connection to my SQL database.     
         SqlConnection con = new SqlConnection();
 
-        //Create an object for SqlCommand
+        //Allows me to run SQL commands
         SqlCommand cmd = new SqlCommand();
 
-        //Create object for SqlDataAdapter
+        //Allows me communicate data in the correct format.
         SqlDataAdapter da = new SqlDataAdapter();
 
         private int CurrencyId = 0;    //Declare CurrencyId with int DataType and Assign Value 0
@@ -39,13 +39,13 @@ namespace CurrencyConverter
 
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent(); //Displays everything we see insiude of the .xaml file. The actual window form. 
             BindCurrency();
             BindCurrency();
             GetData();
         }
 
-        public void mycon()
+        public void mycon() //Allows us to make a connection to database
         {
             //Database connection string
             String Conn = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;  //Database Connection String
@@ -55,12 +55,13 @@ namespace CurrencyConverter
 
         private void BindCurrency()
         {
-            mycon();
+            mycon(); //establishes a new connection for the database
 
-            //Create an object for DataTable
+            //Create an object for DataTable, Creates a new datatable.
             DataTable dt = new DataTable();
 
             //Write query for get data from Currency_Master table
+            //Writing a SQL command to get data from currency master.
             cmd = new SqlCommand("select Id, CurrencyName from Currency_Master", con);
 
             //CommandType define which type of command we use for write a query
@@ -69,21 +70,21 @@ namespace CurrencyConverter
             //It accepts a parameter that contains the command text of the object's selectCommand property.
             da = new SqlDataAdapter(cmd);
 
-            da.Fill(dt);
+            da.Fill(dt); //Adds the data it recieves from the cmd command and fills the table.
 
-            //Create an object for DataRow
+            //Create an object for DataRow, craeats a new row to the data table.
             DataRow newRow = dt.NewRow();
 
-            //Assign a value to Id column
+            //Assign the new row a value to Id column
             newRow["Id"] = 0;
 
-            //Assign value to CurrencyName column
+            //Assign value to CurrencyName column, naming the column "SELECT"
             newRow["CurrencyName"] = "--SELECT--";
 
-            //Insert a new row in dt with the data at a 0 position
+            //Insert the new row in the datatable with the data at a 0 position
             dt.Rows.InsertAt(newRow, 0);
 
-            //The dt is not null and rows count greater than 0
+            //Checking to see if it works.. The dt is not null and rows count greater than 0, Show that on the datatable.
             if (dt != null && dt.Rows.Count > 0)
             {
                 //Assign the datatable data to from currency combobox using ItemSource property.
@@ -92,7 +93,7 @@ namespace CurrencyConverter
                 //Assign the datatable data to to currency combobox using ItemSource property.
                 cmbToCurrency.ItemsSource = dt.DefaultView;
             }
-            con.Close();
+            con.Close(); //Close the connect to the database
 
                         
             cmbFromCurrency.DisplayMemberPath = "CurrencyName";
@@ -153,8 +154,8 @@ namespace CurrencyConverter
             {
                 //Calculation for currency converter is From Currency value multiply(*)
                 //With the amount textbox value and then that total dividend(/) with To Currency value
-                ConvertedValue = (double.Parse(cmbFromCurrency.SelectedValue.ToString()) * 
-                    double.Parse(txtCurrency.Text)) / 
+                ConvertedValue = (double.Parse(cmbFromCurrency.SelectedValue.ToString()) *
+                    double.Parse(txtCurrency.Text)) /
                     double.Parse(cmbToCurrency.SelectedValue.ToString());
 
                 //Show the label converted currency and converted currency name.
@@ -188,14 +189,14 @@ namespace CurrencyConverter
         {
             try
             {
-                //Check the validation 
+                //Check the validation if text amount is null or empty, show message box.
                 if (txtAmount.Text == null || txtAmount.Text.Trim() == "")
                 {
                     MessageBox.Show("Please enter amount", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     txtAmount.Focus();
                     return;
                 }
-                else if (txtCurrencyName.Text == null || txtCurrencyName.Text.Trim() == "")
+                else if (txtCurrencyName.Text == null || txtCurrencyName.Text.Trim() == "")// checks to see if currency amount is empty.
                 {
                     MessageBox.Show("Please enter currency name", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     txtCurrencyName.Focus();
@@ -203,19 +204,19 @@ namespace CurrencyConverter
                 }
                 else
                 {
-                    if (CurrencyId > 0)       //Code for the Update Button. Check CurrencyId greater than zero then it is go for update
+                    if (CurrencyId > 0) //Code for the Update Button. Check CurrencyId greater than zero then it is go for update
                     {
-                        if (MessageBox.Show("Are you sure you want to Update ?", "Information", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        if (MessageBox.Show("Are you sure you want to Update ?", "Information", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) //Show confirmation message
                         {
-                            mycon();
-                            DataTable dt = new DataTable();
+                            mycon(); //Establishes/opens connection to database
+                            DataTable dt = new DataTable(); //Create a data table to put object in.
                             cmd = new SqlCommand("UPDATE Currency_Master SET Amount = @Amount, CurrencyName = @CurrencyName WHERE Id = @Id", con); //Update Query Record update using Id
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@Id", CurrencyId);
-                            cmd.Parameters.AddWithValue("@Amount", txtAmount.Text);
-                            cmd.Parameters.AddWithValue("@CurrencyName", txtCurrencyName.Text);
-                            cmd.ExecuteNonQuery();
-                            con.Close();
+                            cmd.CommandType = CommandType.Text; //Command type is text, String.
+                            cmd.Parameters.AddWithValue("@Id", CurrencyId); //Currency ID
+                            cmd.Parameters.AddWithValue("@Amount", txtAmount.Text); //Text amount
+                            cmd.Parameters.AddWithValue("@CurrencyName", txtCurrencyName.Text); //Text Currency
+                            cmd.ExecuteNonQuery(); //Executes the work
+                            con.Close(); //Closes the connection to the database.
 
                             MessageBox.Show("Data Updated successfully", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
@@ -224,19 +225,19 @@ namespace CurrencyConverter
                     {
                         if (MessageBox.Show("Are you sure you want to Save ?", "Information", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         {
-                            mycon();
+                            mycon(); //Open connection
                             DataTable dt = new DataTable();
                             cmd = new SqlCommand("INSERT INTO Currency_Master(Amount, CurrencyName) VALUES(@Amount, @CurrencyName)", con); //Insert Query for Save data in the Table
                             cmd.CommandType = CommandType.Text;
                             cmd.Parameters.AddWithValue("@Amount", txtAmount.Text);
                             cmd.Parameters.AddWithValue("@CurrencyName", txtCurrencyName.Text);
-                            cmd.ExecuteNonQuery();
-                            con.Close();
+                            cmd.ExecuteNonQuery(); //Executes the work
+                            con.Close();//Closes the connection
 
-                            MessageBox.Show("Data saved successfully", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                            MessageBox.Show("Data saved successfully", "Information", MessageBoxButton.OK, MessageBoxImage.Information); //Validation the work was saved.
                         }
                     }
-                    ClearMaster();
+                    ClearMaster(); //Allows to clear everything
                 }
             }
             catch (Exception ex)
@@ -246,17 +247,17 @@ namespace CurrencyConverter
             }
         }
 
-        private void ClearMaster()
+        private void ClearMaster() //This method is used to clear all the input in which the user entered in currency master tab
         {
             try
             {
-                txtAmount.Text = string.Empty;
-                txtCurrencyName.Text = string.Empty;
-                btnSave.Content = "Save";
+                txtAmount.Text = string.Empty; //Changes text amount to empty
+                txtCurrencyName.Text = string.Empty; //Changes text name to empty
+                btnSave.Content = "Save"; // Names the save button "Save".
                 GetData();
-                CurrencyId = 0;
-                BindCurrency();
-                txtAmount.Focus();
+                CurrencyId = 0; //Sets ID back top 0
+                BindCurrency(); //Assign the data table back correctly.
+                txtAmount.Focus(); //Sets focus back to txtAmount
             }
             catch (Exception ex)
             {
@@ -264,7 +265,7 @@ namespace CurrencyConverter
             }
         }
 
-        //Bind data to the DataGrid view.
+        //Binds data to the DataGrid view. So we can see whats in the data table.
         public void GetData()
         {
 
@@ -302,7 +303,7 @@ namespace CurrencyConverter
         {
             try
             {
-                ClearMaster();
+                ClearMaster(); //Try to clear the data table.
             }
             catch (Exception ex)
             {
@@ -311,6 +312,7 @@ namespace CurrencyConverter
         }
 
         //DataGrid selected cell changed event
+        //The event for updating cells.
         private void dgvCurrency_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
             try
@@ -324,7 +326,7 @@ namespace CurrencyConverter
                 //If row_selected is not null
                 if (row_selected != null)
                 {
-                    //dgvCurrency items count greater than zero
+                    //dgvCurrency items count greater than zero - Checks to see if there are item in the data table.
                     if (dgvCurrency.Items.Count > 0)
                     {
                         if (grd.SelectedCells.Count > 0)
